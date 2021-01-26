@@ -42,6 +42,7 @@ from packagedcode import pypi
 from packagedcode import rpm
 from packagedcode import rubygems
 from packagedcode import win_pe
+from packagedcode import openwrt
 
 
 # Note: the order matters: from the most to the least specific
@@ -92,6 +93,7 @@ PACKAGE_TYPES = [
     build.AutotoolsPackage,
     conda.CondaPackage,
     win_pe.WindowsExecutable,
+    openwrt.OpenwrtPackage,
 ]
 
 
