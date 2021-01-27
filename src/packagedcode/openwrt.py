@@ -59,12 +59,12 @@ if TRACE:
 
 @attr.s()
 class OpenwrtPackage(models.Package):
-    metafiles = ('*.control',)
+    # metafiles = ('*.control',)
     # this is a tar.gz archive, unlike Debian which use ar archives
     extensions = ('.ipk',)
     filetypes = ('gzip compressed data',)
     mimetypes = ('application/gzip',)
-    installed_db = ('/usr/lib/opkg/status',)
+    installed_dbs = ('/usr/lib/opkg/status',)
     default_type = 'openwrt'
 
     installed_files = List(
@@ -86,7 +86,7 @@ class OpenwrtPackage(models.Package):
     def compute_normalized_license(self):
         return compute_normalized_license(self.declared_license)
 
-    def to_dict(self, _detailed=False, **kwargs):
+    def to_dict(self, _detailed=True, **kwargs):
         data = models.Package.to_dict(self, **kwargs)
         if _detailed:
             #################################################
@@ -162,7 +162,7 @@ def is_status_file(location, include_path=False):
     )
     if include_path:
         posix_location = as_posixpath(location)
-        return has_name and posix_location.endwith('/usr/lib/opkg/status')
+        return has_name and posix_location.endswith('/usr/lib/opkg/status')
     else:
         return has_name
 
@@ -187,7 +187,7 @@ def parse(location):
         opkg_dir = fileutils.parent_directory(location)
         rootfs_dir = fileutils.parent_directory(fileutils.parent_directory(opkg_dir))
         openwrt_version = get_openwrt_version(rootfs_dir)
-        for package  in get_installed_packages(root_dir=opkg_dir, openwrt_version=openwrt_version, detect_licenses=False):
+        for package  in get_installed_packages(opkg_dir=opkg_dir, openwrt_version=openwrt_version, detect_licenses=False):
             yield package
 
 
@@ -217,17 +217,17 @@ def get_openwrt_version(rootfs_dir):
     return
 
 
-def get_installed_packages(root_dir, openwrt_version=None, detect_licenses=False, **kwargs):
+def get_installed_packages(opkg_dir, openwrt_version=None, detect_licenses=False, **kwargs):
     """
-    Given a directory to a rootfs, yield a OpenwrtPackage for the optional
-    `openwrt_version` and a list of `installed_files` paths.
+    Given a directory to a /usr/lib/opkg dir, yield installed OpenwrtPackage (s) for the
+    optional `openwrt_version`.
     """
 
-    base_status_file_loc = os.path.join(root_dir, 'usr/lib/opkg/status')
+    base_status_file_loc = os.path.join(opkg_dir, 'status')
     if not os.path.exists(base_status_file_loc):
         return
 
-    usr_lib_opkg_info_dir = os.path.join(root_dir, 'us/lib/opkg/info/')
+    usr_lib_opkg_info_dir = os.path.join(opkg_dir, 'info')
 
     for package in parse_status_file(base_status_file_loc, openwrt_version=openwrt_version):
         package.populate_installed_files(usr_lib_opkg_info_dir)

@@ -124,9 +124,9 @@ def recognize_packages(location):
                 recognized_packages.append(recognized)
             return recognized_packages
 
-        # 3. try as as an installed db
+        # 3. try as an installed db
         posix_location = as_posixpath(location)
-        if any(posix_location.endwith(idb) for idb in package_type.installed_dbs):
+        if any(posix_location.endswith(idb) for idb in package_type.installed_dbs):
             for recognized in package_type.recognize(location):
                 if TRACE:logger_debug('recognize_packages: metafile matching: recognized:', recognized)
                 if recognized and not recognized.license_expression:
