@@ -74,6 +74,9 @@ def get_licenses_db(licenses_data_dir=None, _test_mode=False):
             from licensedcode.models import licenses_data_dir as ldd
             licenses_data_dir = ldd
         lics_by_key = load_licenses(licenses_data_dir)
+        datadir = os.getenv("CUSTOM_LICENSE_DATADIR")
+        if datadir is not None and not _test_mode:
+            lics_by_key.update(load_licenses(os.path.join(datadir, "licenses")))
 
         if _test_mode:
             # Do not cache when testing

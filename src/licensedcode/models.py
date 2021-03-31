@@ -13,6 +13,7 @@ from functools import partial
 from itertools import chain
 import io
 from operator import itemgetter
+from os import getenv
 from os.path import abspath
 from os.path import dirname
 from os.path import exists
@@ -471,6 +472,10 @@ def get_rules(licenses_data_dir=licenses_data_dir, rules_data_dir=rules_data_dir
     from licensedcode.cache import get_licenses_db
     licenses = get_licenses_db(licenses_data_dir=licenses_data_dir)
     rules = list(load_rules(rules_data_dir=rules_data_dir))
+    datadir = getenv("CUSTOM_LICENSE_DATADIR")
+    if datadir is not None:
+        rules.extend(list(load_rules(rules_data_dir=join(datadir, "rules"))))
+
     validate_rules(rules, licenses)
     licenses_as_rules = build_rules_from_licenses(licenses)
     return chain(licenses_as_rules, rules)
